@@ -5,7 +5,7 @@ Welcome to **JACVIS** — *Just Another Clever Voice-Integrated System* 🎙️
 JACVIS is a voice-driven, agentic assistant built on **Jac Language**, powered by **TinyLLaMA**, and fine-tuned for structured <llm> tasks in the MTLLM framework.
 
 This is an official extension of **Project P3** from the Jac community's project list:
-> **Fine-tuning TinyLLaMA for Enhanced Jac MTLLM Performance**
+> [**Fine-tuning TinyLLaMA for Enhanced Jac MTLLM Performance**](https://www.jac-lang.org/communityhub/fun/p3/)
 
 ---
 
@@ -56,7 +56,7 @@ We’re an enthusiastic team of innovators combining **LLMs + voice control + gr
 |---------------------------------|------------|
 | TinyLLaMA dataset generation    | 🔄 In Progress |
 | Fine-tuning & backend integration | 🔄 In Progress |
-| Jac Evaluation Harness          | ✅ Prototype Ready |
+| Jac Evaluation Harness (Pipeline)         | ✅ Prototypes Ready |
 | Voice-to-Text Integration       | 🔄 In Progress |
 | Agentic Action Mapping          | 🔄 Building |
 | Spoken Output Layer             | 🔄 Working |
