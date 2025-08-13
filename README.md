@@ -1,78 +1,89 @@
-# 🤖 JACVIS 1.0 — Voice-Controlled Agentic AI Powered by TinyLLaMA  
-*By Team TriNetics*
+# Auto-Adaptive Fine-tuning for Jac MTLLM using RPG Game Generation
 
-Welcome to **JACVIS** — *Just Another Clever Voice-Integrated System* 🎙️  
-JACVIS is a voice-driven, agentic assistant built on **Jac Language**, powered by **TinyLLaMA**, and fine-tuned for structured <llm> tasks in the MTLLM framework.
+## Overview
+This project aims to create an intelligent **MTLLM** (Multi-Task Large Language Model) system that **automatically collects training data** from large model interactions and **continuously fine-tunes smaller, local models** to replace them.  
+The use case focuses on **RPG game level generation** — a complex structured data generation task that requires spatial awareness, adherence to game rules, and creativity.
 
-This is an official extension of **Project P3** from the Jac community's project list:
-> [**Fine-tuning TinyLLaMA for Enhanced Jac MTLLM Performance**](https://www.jac-lang.org/communityhub/fun/p3/)
-
----
-
-## 🎯 Project Overview
-
-Our goal is to **fine-tune the TinyLLaMA model** to better handle structured Jac inputs/outputs — enabling accurate, type-safe completions through `<llm>` calls — *and* integrate it with **voice control** to demonstrate agentic interaction with:
-
-- 🎤 **Voice Commands**
-- 🧠 **LLM-backed structured reasoning**
-- 🗃️ **Jac-native objects, walkers, and graphs**
+By progressively training local models (like TinyLLaMA) using real interaction data, the system reduces **cost**, **latency**, and **dependency** on external APIs.
 
 ---
 
-## 🛠️ Current Build (v1.0)
+## Problem Statement
+Current MTLLM setups for structured data generation suffer from:
 
-### ✅ Core P3 Goals
-- Create a **Jac-based fine-tuning dataset** using real MTLLM prompt-output pairs
-- Fine-tune TinyLLaMA using LoRA or PEFT techniques
-- Build a **Jac evaluation harness** to validate model accuracy and structure adherence
-- Integrate the fine-tuned model as an MTLLM backend
-
-### 🎙️ Voice-Controlled Extension (JACVIS)
-- Use **speech-to-text input** for initiating agent tasks
-- Dynamically select Jac walkers based on voice commands
-- Convert structured outputs to **natural spoken responses**
-- Serve as a smart interface layer for P3’s MTLLM logic
+1. **High API Costs** – Continuous use of large cloud models is expensive.  
+2. **Latency Issues** – Network calls cause delays in real-time applications.  
+3. **Dependency Risk** – Reliance on third-party services and pricing policies.
 
 ---
 
-## 👨‍💻 Team TriNetics
+## Proposed Solution
 
-We’re an enthusiastic team of innovators combining **LLMs + voice control + graph agents** to make something practical, scalable, and open-source. Our dream is to push JACVIS into a real JARVIS-style assistant one day — modular, local, and empowering!
-
----
-
-## 🔍 What's Agentic About It?
-
-- JACVIS performs autonomous decision-making using structured LLM completions
-- Maintains internal state across user queries
-- Routes user voice requests to correct Jac walkers
-- Acts and responds as an intelligent, interactive **agent**
-
----
-
-## 📍 Roadmap
-
-| Feature                         | Status     |
-|---------------------------------|------------|
-| TinyLLaMA dataset generation    | 🔄 In Progress |
-| Fine-tuning & backend integration | 🔄 In Progress |
-| Jac Evaluation Harness (Pipeline)         | ✅ Prototypes Ready |
-| Voice-to-Text Integration       | 🔄 In Progress |
-| Agentic Action Mapping          | 🔄 Building |
-| Spoken Output Layer             | 🔄 Working |
+### 1. Dataset Generation Using Large Models
+- **Complex Use Case**: RPG game level generation requiring:
+  - Understanding of game mechanics and spatial layout
+  - Creating interconnected game objects (players, enemies, terrain)
+  - Following strict playability and structural rules
+- **Automated Pipeline**:
+  - Use Jac abilities with `by <llm>` calls to GPT-4, Claude, Gemini Pro
+  - Generate multiple versions to build a **diverse dataset**
+  - Store original prompts and structured outputs
+- **Optional Filtering**:
+  - Validate levels for:
+    - Player spawn points
+    - Proper enemy placement
+    - Reachability of all areas
+    - Structural integrity
 
 ---
 
-## 🤝 How You Can Help
-
-Mentors and contributors from JaseciLabs are welcome to:
-- Guide us on **TinyLLaMA fine-tuning best practices**
-- Help validate our MTLLM testing workflows
-- Suggest voice pipeline improvements
-- Share ideas to enhance agent autonomy and task diversity
+### 2. Small LLM Training Pipeline
+- **Target Model**: TinyLLaMA for local deployment  
+- **Fine-tuning Techniques**:
+  - LoRA (Low-Rank Adaptation)
+  - QLoRA (Quantized LoRA) for efficiency
+- **Optimization**:
+  - Apply quantization for smaller model size and faster inference
+  - Use dataset generated from `by <llm>` calls
 
 ---
 
-> 🎤 *“JACVIS hears you, thinks fast, and acts smart.”*  
-> — *Team TriNetics, powering Agentic AI with Jac + TinyLLaMA*
+### 3. MTLLM Plugin Integration
+- **Automatic Data Collection**:
+  - Capture prompt-response pairs from successful large model calls
+- **Dynamic Training**:
+  - Periodic background fine-tuning during low usage periods
+- **Intelligent Model Switching**:
+  - Replace large model calls with local models when confidence is high
+  - Maintain per-call-site specialized models
+- **Persistence**:
+  - Store, cache, and version trained models
+  - Rollback capability
 
+---
+
+### 4. Evaluation Framework
+- **Manual Correctness Checks**:
+  - Create evaluation rubrics for:
+    - Gameplay fun & viability
+    - Structural correctness
+    - Adherence to constraints & themes
+- **Comparison**:
+  - Compare large model vs. fine-tuned local model outputs
+
+---
+
+## Benefits
+- **Cost Reduction** – Use large models only for initial dataset generation  
+- **Lower Latency** – Run fine-tuned models locally for real-time use  
+- **Resilience** – Less dependent on third-party API pricing & uptime  
+- **Continuous Improvement** – Automatic self-learning from live interactions  
+
+---
+
+## Tech Stack
+- **Language**: [Jac Programming Language](https://www.jac-lang.org/)
+- **Models**: GPT-4, Claude, Gemini Pro, TinyLLaMA
+- **Fine-tuning**: LoRA, QLoRA
+- **Deployment**: Jac MTLLM Plugin, Local Model Hosting
+- **Evaluation**: Custom rule-based & manual rubric system
