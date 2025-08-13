@@ -1,0 +1,55 @@
+{
+  "messages": [
+    {"role": "system", "content": "This is a task you must complete by returning only the output. Do not include explanations, code, or extra text—only the result."},
+    {"role": "user", "content": "create_next_level\n\nself = LevelManager(current_level=1, current_difficulty=1, prev_levels=[], prev_level_maps=[])\nlast_levels = []\ndifficulty = 1\nlevel_width = 20\nlevel_height = 20"}
+  ],
+  "assistant": {
+    "name": "Level 2",
+    "difficulty": 2,
+    "width": 20,
+    "height": 20,
+    "num_wall": 50,
+    "num_enemies": 5,
+    "time_countdown": 120,
+    "n_retries_allowed": 3
+  }
+},
+
+{
+  "messages": [
+    {"role": "system", "content": "This is a task you must complete by returning only the output. Do not include explanations, code, or extra text—only the result."},
+    {"role": "user", "content": "create_next_map\n\nself = LevelManager(current_level=1, current_difficulty=1, prev_levels=[Level(name='Level 2', difficulty=2, width=20, height=20, num_wall=50, num_enemies=5, time_countdown=120, n_retries_allowed=3)], prev_level_maps=[])\nlevel = Level(name='Level 2', difficulty=2, width=20, height=20, num_wall=50, num_enemies=5, time_countdown=120, n_retries_allowed=3)"}
+  ],
+  "assistant": {
+    "level": {
+      "name": "Level 3",
+      "difficulty": 3,
+      "width": 25,
+      "height": 25,
+      "num_wall": 60,
+      "num_enemies": 7,
+      "time_countdown": 150,
+      "n_retries_allowed": 3
+    },
+    "walls": [
+      {"start_pos": {"x": 1, "y": 1}, "end_pos": {"x": 1, "y": 24}},
+      {"start_pos": {"x": 24, "y": 1}, "end_pos": {"x": 24, "y": 24}},
+      {"start_pos": {"x": 1, "y": 1}, "end_pos": {"x": 24, "y": 1}},
+      {"start_pos": {"x": 1, "y": 24}, "end_pos": {"x": 24, "y": 24}},
+      {"start_pos": {"x": 5, "y": 5}, "end_pos": {"x": 5, "y": 20}},
+      {"start_pos": {"x": 20, "y": 5}, "end_pos": {"x": 20, "y": 20}},
+      {"start_pos": {"x": 5, "y": 5}, "end_pos": {"x": 20, "y": 5}},
+      {"start_pos": {"x": 5, "y": 20}, "end_pos": {"x": 20, "y": 20}}
+    ],
+    "small_obstacles": [
+      {"x": 8, "y": 8}, {"x": 8, "y": 16}, {"x": 16, "y": 8},
+      {"x": 16, "y": 16}, {"x": 12, "y": 12}
+    ],
+    "enemies": [
+      {"x": 7, "y": 7}, {"x": 7, "y": 17}, {"x": 17, "y": 7},
+      {"x": 17, "y": 17}, {"x": 12, "y": 7}, {"x": 12, "y": 17},
+      {"x": 12, "y": 12}
+    ],
+    "player_pos": {"x": 12, "y": 2}
+  }
+}

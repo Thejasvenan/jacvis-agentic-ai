@@ -1,0 +1,170 @@
+{
+  "messages": [
+    {
+      "role": "system", 
+      "content": "This is a task you must complete by returning only the output.\nDo not include explanations, code, or extra text—only the result.\n"
+    }, 
+    {
+      "role": "user", 
+      "content": [
+        {
+          "type": "text", 
+          "text": "create_next_map\n\nself = LevelManager(current_level=1, current_difficulty=1, prev_levels=[Level(name='Level 2', difficulty=2, width=20, height=20, num_wall=50, num_enemies=5, time_countdown=120, n_retries_allowed=3)], prev_level_maps=[])\nlevel = Level(name='Level 2', difficulty=2, width=20, height=20, num_wall=50, num_enemies=5, time_countdown=120, n_retries_allowed=3)"
+        }
+      ]
+    }
+  ],
+  "response_format": {
+    "type": "json_schema",
+    "json_schema": {
+      "name": "Map",
+      "schema": {
+        "title": "Map",
+        "description": "Map(level: 'Level', walls: 'list[Wall]', small_obstacles: 'list[Position]', enemies: 'list[Position]', player_pos: 'Position')",
+        "type": "object",
+        "properties": {
+          "level": {
+            "title": "Level",
+            "description": "Level(name: 'str', difficulty: 'int', width: 'int', height: 'int', num_wall: 'int', num_enemies: 'int', time_countdown: 'int', n_retries_allowed: 'int')",
+            "type": "object",
+            "properties": {
+              "name": {"type": "string", "title": "Name"},
+              "difficulty": {"type": "integer", "title": "Difficulty"},
+              "width": {"type": "integer", "title": "Width"},
+              "height": {"type": "integer", "title": "Height"},
+              "num_wall": {"type": "integer", "title": "Num Wall"},
+              "num_enemies": {"type": "integer", "title": "Num Enemies"},
+              "time_countdown": {"type": "integer", "title": "Time Countdown"},
+              "n_retries_allowed": {"type": "integer", "title": "N Retries Allowed"}
+            },
+            "required": ["name", "difficulty", "width", "height", "num_wall", "num_enemies", "time_countdown", "n_retries_allowed"],
+            "additionalProperties": false
+          },
+          "walls": {
+            "type": "array",
+            "items": {
+              "title": "Wall",
+              "description": "Wall(start_pos: 'Position', end_pos: 'Position')",
+              "type": "object",
+              "properties": {
+                "start_pos": {
+                  "title": "Start Pos",
+                  "description": "Position(x: 'int', y: 'int')",
+                  "type": "object",
+                  "properties": {
+                    "x": {"type": "integer", "title": "X"},
+                    "y": {"type": "integer", "title": "Y"}
+                  },
+                  "required": ["x", "y"],
+                  "additionalProperties": false
+                },
+                "end_pos": {
+                  "title": "End Pos", 
+                  "description": "Position(x: 'int', y: 'int')",
+                  "type": "object",
+                  "properties": {
+                    "x": {"type": "integer", "title": "X"},
+                    "y": {"type": "integer", "title": "Y"}
+                  },
+                  "required": ["x", "y"],
+                  "additionalProperties": false
+                }
+              },
+              "required": ["start_pos", "end_pos"],
+              "additionalProperties": false
+            },
+            "title": "Walls"
+          },
+          "small_obstacles": {
+            "type": "array",
+            "items": {
+              "title": "Position",
+              "description": "Position(x: 'int', y: 'int')",
+              "type": "object", 
+              "properties": {
+                "x": {"type": "integer", "title": "X"},
+                "y": {"type": "integer", "title": "Y"}
+              },
+              "required": ["x", "y"],
+              "additionalProperties": false
+            },
+            "title": "Small Obstacles"
+          },
+          "enemies": {
+            "type": "array",
+            "items": {
+              "title": "Position",
+              "description": "Position(x: 'int', y: 'int')",
+              "type": "object",
+              "properties": {
+                "x": {"type": "integer", "title": "X"},
+                "y": {"type": "integer", "title": "Y"}
+              },
+              "required": ["x", "y"],
+              "additionalProperties": false
+            },
+            "title": "Enemies"
+          },
+          "player_pos": {
+            "title": "Player Pos",
+            "description": "Position(x: 'int', y: 'int')",
+            "type": "object",
+            "properties": {
+              "x": {"type": "integer", "title": "X"},
+              "y": {"type": "integer", "title": "Y"}
+            },
+            "required": ["x", "y"],
+            "additionalProperties": false
+          }
+        },
+        "required": ["level", "walls", "small_obstacles", "enemies", "player_pos"],
+        "additionalProperties": false
+      },
+      "strict": true
+    }
+  },
+  "temperature": 0.7
+}
+
+{
+  "messages": [
+    {
+      "role": "system", 
+      "content": "This is a task you must complete by returning only the output.\nDo not include explanations, code, or extra text—only the result.\n"
+    }, 
+    {
+      "role": "user", 
+      "content": [
+        {
+          "type": "text", 
+          "text": "create_next_level\n\nself = LevelManager(current_level=1, current_difficulty=1, prev_levels=[], prev_level_maps=[])\nlast_levels = []\ndifficulty = 1\nlevel_width = 20\nlevel_height = 20"
+        }
+      ]
+    }
+  ],
+  "response_format": {
+    "type": "json_schema",
+    "json_schema": {
+      "name": "Level",
+      "schema": {
+        "title": "Level",
+        "description": "Level(name: 'str', difficulty: 'int', width: 'int', height: 'int', num_wall: 'int', num_enemies: 'int', time_countdown: 'int', n_retries_allowed: 'int')",
+        "type": "object",
+        "properties": {
+          "name": {"type": "string", "title": "Name"},
+          "difficulty": {"type": "integer", "title": "Difficulty"},
+          "width": {"type": "integer", "title": "Width"},
+          "height": {"type": "integer", "title": "Height"},
+          "num_wall": {"type": "integer", "title": "Num Wall"},
+          "num_enemies": {"type": "integer", "title": "Num Enemies"},
+          "time_countdown": {"type": "integer", "title": "Time Countdown"},
+          "n_retries_allowed": {"type": "integer", "title": "N Retries Allowed"}
+        },
+        "required": ["name", "difficulty", "width", "height", "num_wall", "num_enemies", "time_countdown", "n_retries_allowed"],
+        "additionalProperties": false
+      },
+      "strict": true
+    }
+  },
+  "temperature": 0.7
+}
