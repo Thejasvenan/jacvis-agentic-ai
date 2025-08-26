@@ -1,0 +1,15 @@
+google-generativeai
+dataclasses-json
+transformers
+datasets
+accelerate
+peft
+bitsandbytes
+trl
+torch
+huggingface_hub
+datasets
+jac_nlp
+peft>=0.4.0
+accelerate>=0.20.0
+bitsandbytes>=0.40.0
