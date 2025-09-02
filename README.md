@@ -1,89 +1,145 @@
-# Auto-Adaptive Fine-tuning for Jac MTLLM using RPG Game Generation
+# Fine-Tuned TinyLlama RPG Model - README
 
 ## Overview
-This project aims to create an intelligent **MTLLM** (Multi-Task Large Language Model) system that **automatically collects training data** from large model interactions and **continuously fine-tunes smaller, local models** to replace them.  
-The use case focuses on **RPG game level generation** — a complex structured data generation task that requires spatial awareness, adherence to game rules, and creativity.
+This repository contains a fine-tuned TinyLlama-1.1B-Chat model specialized for RPG (Role-Playing Game) tasks, converted to GGUF format for use with Ollama and other GGML-based inference engines.
 
-By progressively training local models (like TinyLLaMA) using real interaction data, the system reduces **cost**, **latency**, and **dependency** on external APIs.
+## Step-by-Step Process
 
----
+### Step 1: Data Collection
+*Purpose*: Gather RPG-specific training data
+python
+# collect_mtllm_data.py
+# Collects and formats RPG task data
+# Creates dataset with system prompt format
 
-## Problem Statement
-Current MTLLM setups for structured data generation suffer from:
+- *Input*: Raw RPG data sources
+- *Output*: Formatted training dataset
+- *Format*: Task-completion structure with system prompts
 
-1. **High API Costs** – Continuous use of large cloud models is expensive.  
-2. **Latency Issues** – Network calls cause delays in real-time applications.  
-3. **Dependency Risk** – Reliance on third-party services and pricing policies.
+### Step 2: Fine-Tuning with LoRA
+*Purpose*: Train the model on RPG tasks using Parameter Efficient Fine-Tuning
+python
+# Training script (PEFT/LoRA approach)
+base_model = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
+# Apply LoRA adapters to specific layers
+# Train on RPG dataset
 
----
+- *Method*: LoRA (Low-Rank Adaptation)
+- *Benefits*: Efficient training, preserves base model knowledge
+- *Output*: LoRA adapter weights in ./tinyllama-rpg-finetuned/
 
-## Proposed Solution
+### Step 3: Merge LoRA Weights
+*Purpose*: Combine LoRA adapters with base model to create a complete model
+python
+# modelConvert.py
+# Load base model
+model = AutoModelForCausalLM.from_pretrained("TinyLlama/TinyLlama-1.1B-Chat-v1.0")
+tokenizer = AutoTokenizer.from_pretrained("TinyLlama/TinyLlama-1.1B-Chat-v1.0")
 
-### 1. Dataset Generation Using Large Models
-- **Complex Use Case**: RPG game level generation requiring:
-  - Understanding of game mechanics and spatial layout
-  - Creating interconnected game objects (players, enemies, terrain)
-  - Following strict playability and structural rules
-- **Automated Pipeline**:
-  - Use Jac abilities with `by <llm>` calls to GPT-4, Claude, Gemini Pro
-  - Generate multiple versions to build a **diverse dataset**
-  - Store original prompts and structured outputs
-- **Optional Filtering**:
-  - Validate levels for:
-    - Player spawn points
-    - Proper enemy placement
-    - Reachability of all areas
-    - Structural integrity
+# Load and merge LoRA weights
+model = PeftModel.from_pretrained(model, "./tinyllama-rpg-finetuned")
+merged_model = model.merge_and_unload()
 
----
+# Save merged model
+merged_model.save_pretrained("./tinyllama-rpg-merged")
+tokenizer.save_pretrained("./tinyllama-rpg-merged")
 
-### 2. Small LLM Training Pipeline
-- **Target Model**: TinyLLaMA for local deployment  
-- **Fine-tuning Techniques**:
-  - LoRA (Low-Rank Adaptation)
-  - QLoRA (Quantized LoRA) for efficiency
-- **Optimization**:
-  - Apply quantization for smaller model size and faster inference
-  - Use dataset generated from `by <llm>` calls
+- *Input*: Base model + LoRA adapters
+- *Process*: Merge weights into single model
+- *Output*: Complete HuggingFace model in ./tinyllama-rpg-merged/
 
----
+### Step 4: Convert to GGUF Format
+*Purpose*: Convert HuggingFace model to GGUF format for Ollama compatibility
+bash
+# Install dependencies
+pip install sentencepiece
 
-### 3. MTLLM Plugin Integration
-- **Automatic Data Collection**:
-  - Capture prompt-response pairs from successful large model calls
-- **Dynamic Training**:
-  - Periodic background fine-tuning during low usage periods
-- **Intelligent Model Switching**:
-  - Replace large model calls with local models when confidence is high
-  - Maintain per-call-site specialized models
-- **Persistence**:
-  - Store, cache, and version trained models
-  - Rollback capability
+# Convert using llama.cpp
+git clone https://github.com/ggerganov/llama.cpp.git
+cd llama.cpp
+python convert_hf_to_gguf.py --outfile tinyllama-rpg.gguf --outtype f16 ../tinyllama-rpg-merged
 
----
+- *Input*: HuggingFace model directory
+- *Tool*: llama.cpp conversion script
+- *Output*: tinyllama-rpg.gguf file (~2.2GB)
 
-### 4. Evaluation Framework
-- **Manual Correctness Checks**:
-  - Create evaluation rubrics for:
-    - Gameplay fun & viability
-    - Structural correctness
-    - Adherence to constraints & themes
-- **Comparison**:
-  - Compare large model vs. fine-tuned local model outputs
+### Step 5: Create Ollama Model Definition
+*Purpose*: Configure model parameters for Ollama
+dockerfile
+# Modelfile
+FROM tinyllama-rpg.gguf
+PARAMETER temperature 0.7
+PARAMETER top_p 0.9
+PARAMETER stop "USER:"
+PARAMETER stop "ASSISTANT:"
+SYSTEM "This is a task you must complete by returning only the output. Do not include explanations, code, or extra text—only the result."
 
----
+- *Configuration*: Set inference parameters
+- *System Prompt*: Define model behavior
+- *Format*: Ollama Modelfile syntax
 
-## Benefits
-- **Cost Reduction** – Use large models only for initial dataset generation  
-- **Lower Latency** – Run fine-tuned models locally for real-time use  
-- **Resilience** – Less dependent on third-party API pricing & uptime  
-- **Continuous Improvement** – Automatic self-learning from live interactions  
+### Step 6: Import into Ollama
+*Purpose*: Make the model available for use
+bash
+# Create model in Ollama
+ollama create tinyllama-rpg -f Modelfile
 
----
+# Verify model is available
+ollama list
 
-## Tech Stack
-- **Language**: [Jac Programming Language](https://www.jac-lang.org/)
-- **Models**: GPT-4, Claude, Gemini Pro, TinyLLaMA
-- **Fine-tuning**: LoRA, QLoRA
-- **Deployment**: Jac MTLLM Plugin, Local Model Hosting
-- **Evaluation**: Custom rule-based & manual rubric system
+- *Import*: Register model with Ollama
+- *Naming*: Model becomes available as tinyllama-rpg
+
+### Step 7: Use the Model
+*Purpose*: Run inference with the fine-tuned model
+bash
+# Command line usage
+ollama run tinyllama-rpg
+
+# Or programmatically
+import ollama
+response = ollama.chat(
+    model='tinyllama-rpg',
+    messages=[{'role': 'user', 'content': 'Your RPG prompt here'}]
+)
+print(response['message']['content'])
+
+- *Interface*: Command line or API
+- *Behavior*: Returns direct, task-focused responses
+- *Specialization*: Optimized for RPG tasks
+
+## File Structure After Each Step
+
+
+JAC_Project/
+├── collect_mtllm_data.py           # Step 1: Data collection
+├── tinyllama-rpg-finetuned/        # Step 2: LoRA adapters
+├── modelConvert.py                 # Step 3: Merge script
+├── tinyllama-rpg-merged/           # Step 3: Merged model
+├── llama.cpp/                      # Step 4: Conversion tools
+│   └── tinyllama-rpg.gguf         # Step 4: GGUF model
+├── Modelfile                       # Step 5: Ollama config
+└── README.md                       # Documentation
+
+
+## Key Dependencies by Step
+
+- *Step 1-3*: transformers, peft, torch, datasets
+- *Step 4*: sentencepiece, llama.cpp
+- *Step 5-7*: ollama
+
+## Model Specifications
+
+- *Base Model*: TinyLlama-1.1B-Chat-v1.0
+- *Fine-tuning*: LoRA adapters
+- *Size*: ~1.1B parameters
+- *Format*: GGUF F16 precision
+- *Context*: 2048 tokens
+- *Specialization*: RPG task completion
+
+## Usage Notes
+
+- The model outputs direct responses without explanations
+- Optimized for task completion rather than conversation
+- Maintains efficiency through LoRA fine-tuning approach
+- Compatible with any GGML-based inference
