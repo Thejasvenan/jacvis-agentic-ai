@@ -8,9 +8,9 @@ This repository contains a fine-tuned TinyLlama-1.1B-Chat model specialized for 
 ### Step 1: Data Collection
 *Purpose*: Gather RPG-specific training data
 python
-#### collect_mtllm_data.py
-#### Collects and formats RPG task data
-#### Creates dataset with system prompt format
+### collect_mtllm_data.py
+### Collects and formats RPG task data
+### Creates dataset with system prompt format
 
 - *Input*: Raw RPG data sources
 - *Output*: Formatted training dataset
@@ -19,10 +19,10 @@ python
 ### Step 2: Fine-Tuning with LoRA
 *Purpose*: Train the model on RPG tasks using Parameter Efficient Fine-Tuning
 python
-## Training script (PEFT/LoRA approach)
+# Training script (PEFT/LoRA approach)
 base_model = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
-## Apply LoRA adapters to specific layers
-## Train on RPG dataset
+# Apply LoRA adapters to specific layers
+# Train on RPG dataset
 
 - *Method*: LoRA (Low-Rank Adaptation)
 - *Benefits*: Efficient training, preserves base model knowledge
@@ -31,16 +31,16 @@ base_model = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
 ### Step 3: Merge LoRA Weights
 *Purpose*: Combine LoRA adapters with base model to create a complete model
 python
-## modelConvert.py
-## Load base model
+# modelConvert.py
+# Load base model
 model = AutoModelForCausalLM.from_pretrained("TinyLlama/TinyLlama-1.1B-Chat-v1.0")
 tokenizer = AutoTokenizer.from_pretrained("TinyLlama/TinyLlama-1.1B-Chat-v1.0")
 
-## Load and merge LoRA weights
+# Load and merge LoRA weights
 model = PeftModel.from_pretrained(model, "./tinyllama-rpg-finetuned")
 merged_model = model.merge_and_unload()
 
-## Save merged model
+# Save merged model
 merged_model.save_pretrained("./tinyllama-rpg-merged")
 tokenizer.save_pretrained("./tinyllama-rpg-merged")
 
@@ -51,10 +51,10 @@ tokenizer.save_pretrained("./tinyllama-rpg-merged")
 ### Step 4: Convert to GGUF Format
 *Purpose*: Convert HuggingFace model to GGUF format for Ollama compatibility
 bash
-## Install dependencies
+# Install dependencies
 pip install sentencepiece
 
-## Convert using llama.cpp
+# Convert using llama.cpp
 git clone https://github.com/ggerganov/llama.cpp.git
 cd llama.cpp
 python convert_hf_to_gguf.py --outfile tinyllama-rpg.gguf --outtype f16 ../tinyllama-rpg-merged
@@ -66,7 +66,7 @@ python convert_hf_to_gguf.py --outfile tinyllama-rpg.gguf --outtype f16 ../tinyl
 ### Step 5: Create Ollama Model Definition
 *Purpose*: Configure model parameters for Ollama
 dockerfile
-## Modelfile
+# Modelfile
 FROM tinyllama-rpg.gguf
 PARAMETER temperature 0.7
 PARAMETER top_p 0.9
@@ -81,10 +81,10 @@ SYSTEM "This is a task you must complete by returning only the output. Do not in
 ### Step 6: Import into Ollama
 *Purpose*: Make the model available for use
 bash
-## Create model in Ollama
+# Create model in Ollama
 ollama create tinyllama-rpg -f Modelfile
 
-## Verify model is available
+# Verify model is available
 ollama list
 
 - *Import*: Register model with Ollama
@@ -96,7 +96,7 @@ bash
 # Command line usage
 ollama run tinyllama-rpg
 
-## Or programmatically
+# Or programmatically
 import ollama
 response = ollama.chat(
     model='tinyllama-rpg',
@@ -108,7 +108,7 @@ print(response['message']['content'])
 - *Behavior*: Returns direct, task-focused responses
 - *Specialization*: Optimized for RPG tasks
 
-### File Structure After Each Step
+## File Structure After Each Step
 
 
 JAC_Project/
