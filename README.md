@@ -1,145 +1,170 @@
-# Fine-Tuned TinyLlama RPG Model - README
+# 🎮 Fine-Tuned TinyLlama RPG Model
 
-## Overview
-This repository contains a fine-tuned TinyLlama-1.1B-Chat model specialized for RPG (Role-Playing Game) tasks, converted to GGUF format for use with Ollama and other GGML-based inference engines.
+## 📌 Overview
 
-## Step-by-Step Process
+This repository hosts a **fine-tuned TinyLlama-1.1B-Chat model** specialized for **RPG (Role-Playing Game) task generation**.
+The final model is exported to **GGUF format** for use with **Ollama** and other GGML-based inference engines.
 
-### Step 1: Data Collection
-*Purpose*: Gather RPG-specific training data
-python
-### collect_mtllm_data.py
-### Collects and formats RPG task data
-### Creates dataset with system prompt format
+---
 
-- *Input*: Raw RPG data sources
-- *Output*: Formatted training dataset
-- *Format*: Task-completion structure with system prompts
+## 🚀 Workflow
 
-### Step 2: Fine-Tuning with LoRA
-*Purpose*: Train the model on RPG tasks using Parameter Efficient Fine-Tuning
-python
-# Training script (PEFT/LoRA approach)
+### **Step 1: Data Collection**
+
+📂 *Goal*: Gather and format RPG-specific training data.
+
+```bash
+# collect_mtllm_data.py
+# - Extracts RPG examples
+# - Formats into task-completion style with system prompts
+```
+
+* **Input**: Raw RPG data sources
+* **Output**: Training dataset (JSONL / text)
+
+---
+
+### **Step 2: Fine-Tuning with LoRA**
+
+📂 *Goal*: Train TinyLlama efficiently with RPG tasks.
+
+```python
 base_model = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
-# Apply LoRA adapters to specific layers
-# Train on RPG dataset
+# Apply LoRA adapters and train on RPG dataset
+```
 
-- *Method*: LoRA (Low-Rank Adaptation)
-- *Benefits*: Efficient training, preserves base model knowledge
-- *Output*: LoRA adapter weights in ./tinyllama-rpg-finetuned/
+* **Method**: [LoRA (Low-Rank Adaptation)](https://arxiv.org/abs/2106.09685)
+* **Output**: LoRA adapter weights → `./tinyllama-rpg-finetuned/`
 
-### Step 3: Merge LoRA Weights
-*Purpose*: Combine LoRA adapters with base model to create a complete model
-python
+---
+
+### **Step 3: Merge LoRA Weights**
+
+📂 *Goal*: Create a single complete model.
+
+```python
 # modelConvert.py
-# Load base model
-model = AutoModelForCausalLM.from_pretrained("TinyLlama/TinyLlama-1.1B-Chat-v1.0")
-tokenizer = AutoTokenizer.from_pretrained("TinyLlama/TinyLlama-1.1B-Chat-v1.0")
+model = AutoModelForCausalLM.from_pretrained(base_model)
+tokenizer = AutoTokenizer.from_pretrained(base_model)
 
-# Load and merge LoRA weights
+# Merge LoRA adapters
 model = PeftModel.from_pretrained(model, "./tinyllama-rpg-finetuned")
 merged_model = model.merge_and_unload()
 
-# Save merged model
 merged_model.save_pretrained("./tinyllama-rpg-merged")
 tokenizer.save_pretrained("./tinyllama-rpg-merged")
+```
 
-- *Input*: Base model + LoRA adapters
-- *Process*: Merge weights into single model
-- *Output*: Complete HuggingFace model in ./tinyllama-rpg-merged/
+* **Input**: Base model + LoRA adapters
+* **Output**: Hugging Face model → `./tinyllama-rpg-merged/`
 
-### Step 4: Convert to GGUF Format
-*Purpose*: Convert HuggingFace model to GGUF format for Ollama compatibility
-bash
-# Install dependencies
+---
+
+### **Step 4: Convert to GGUF**
+
+📂 *Goal*: Make the model compatible with Ollama & llama.cpp.
+
+```bash
 pip install sentencepiece
-
-# Convert using llama.cpp
 git clone https://github.com/ggerganov/llama.cpp.git
 cd llama.cpp
-python convert_hf_to_gguf.py --outfile tinyllama-rpg.gguf --outtype f16 ../tinyllama-rpg-merged
 
-- *Input*: HuggingFace model directory
-- *Tool*: llama.cpp conversion script
-- *Output*: tinyllama-rpg.gguf file (~2.2GB)
+python convert_hf_to_gguf.py \
+  --outfile tinyllama-rpg.gguf \
+  --outtype f16 \
+  ../tinyllama-rpg-merged
+```
 
-### Step 5: Create Ollama Model Definition
-*Purpose*: Configure model parameters for Ollama
-dockerfile
+* **Output**: `tinyllama-rpg.gguf` (\~2.2GB)
+
+---
+
+### **Step 5: Create Ollama Model Definition**
+
+📂 *Goal*: Configure inference parameters.
+
+```dockerfile
 # Modelfile
 FROM tinyllama-rpg.gguf
 PARAMETER temperature 0.7
 PARAMETER top_p 0.9
 PARAMETER stop "USER:"
 PARAMETER stop "ASSISTANT:"
-SYSTEM "This is a task you must complete by returning only the output. Do not include explanations, code, or extra text—only the result."
 
-- *Configuration*: Set inference parameters
-- *System Prompt*: Define model behavior
-- *Format*: Ollama Modelfile syntax
+SYSTEM "Return only the RPG output. No explanations or extra text."
+```
 
-### Step 6: Import into Ollama
-*Purpose*: Make the model available for use
-bash
-# Create model in Ollama
+---
+
+### **Step 6: Import into Ollama**
+
+📂 *Goal*: Make the model available locally.
+
+```bash
 ollama create tinyllama-rpg -f Modelfile
+ollama list   # verify installation
+```
 
-# Verify model is available
-ollama list
+---
 
-- *Import*: Register model with Ollama
-- *Naming*: Model becomes available as tinyllama-rpg
+### **Step 7: Run the Model**
 
-### Step 7: Use the Model
-*Purpose*: Run inference with the fine-tuned model
-bash
-# Command line usage
+📂 *Goal*: Generate RPG responses.
+
+```bash
+# CLI
 ollama run tinyllama-rpg
+```
 
-# Or programmatically
+```python
+# Python API
 import ollama
 response = ollama.chat(
-    model='tinyllama-rpg',
-    messages=[{'role': 'user', 'content': 'Your RPG prompt here'}]
+    model="tinyllama-rpg",
+    messages=[{"role": "user", "content": "Generate a dungeon quest with 3 levels"}]
 )
 print(response['message']['content'])
+```
 
-- *Interface*: Command line or API
-- *Behavior*: Returns direct, task-focused responses
-- *Specialization*: Optimized for RPG tasks
+---
 
-## File Structure After Each Step
+## 📂 File Structure
 
-
+```
 JAC_Project/
-├── collect_mtllm_data.py           # Step 1: Data collection
-├── tinyllama-rpg-finetuned/        # Step 2: LoRA adapters
-├── modelConvert.py                 # Step 3: Merge script
-├── tinyllama-rpg-merged/           # Step 3: Merged model
-├── llama.cpp/                      # Step 4: Conversion tools
-│   └── tinyllama-rpg.gguf         # Step 4: GGUF model
-├── Modelfile                       # Step 5: Ollama config
-└── README.md                       # Documentation
+├── collect_mtllm_data.py       # Step 1: Data collection
+├── tinyllama-rpg-finetuned/    # Step 2: LoRA adapters
+├── modelConvert.py             # Step 3: Merge script
+├── tinyllama-rpg-merged/       # Step 3: Merged model
+├── llama.cpp/                  # Step 4: Conversion tools
+│   └── tinyllama-rpg.gguf      # Step 4: GGUF model
+├── Modelfile                   # Step 5: Ollama config
+└── README.md                   # Documentation
+```
 
+---
 
-## Key Dependencies by Step
+## 🔧 Key Dependencies
 
-- *Step 1-3*: transformers, peft, torch, datasets
-- *Step 4*: sentencepiece, llama.cpp
-- *Step 5-7*: ollama
+* **Step 1–3**: `transformers`, `peft`, `torch`, `datasets`
+* **Step 4**: `sentencepiece`, `llama.cpp`
+* **Step 5–7**: `ollama`
 
-## Model Specifications
+---
 
-- *Base Model*: TinyLlama-1.1B-Chat-v1.0
-- *Fine-tuning*: LoRA adapters
-- *Size*: ~1.1B parameters
-- *Format*: GGUF F16 precision
-- *Context*: 2048 tokens
-- *Specialization*: RPG task completion
+## 📊 Model Specifications
 
-## Usage Notes
+* **Base**: `TinyLlama-1.1B-Chat-v1.0`
+* **Fine-tuning**: LoRA adapters
+* **Parameters**: \~1.1B
+* **Format**: GGUF (F16 precision)
+* **Context Window**: 2048 tokens
+* **Specialization**: RPG quest & level generation
 
-- The model outputs direct responses without explanations
-- Optimized for task completion rather than conversation
-- Maintains efficiency through LoRA fine-tuning approach
-- Compatible with any GGML-based inference
+---
+
+## ⚡ Usage Notes
+
+* Outputs **task-focused RPG content** (not general conversation).
+* Designed for **low-resource inference** via LoRA + GGUF.
+* Compatible with **Ollama**, `llama.cpp`, and GGML runtimes.
